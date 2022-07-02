@@ -1,0 +1,84 @@
+to check
+repeat 31 [ ;repeats for each potential word that makes up hydrant/all of the words in :hydwords
+make "currentw item repcount :hydwords ;makes a variable to be used later in check; ie. the current word/"currentw = item 1 :hydwords
+	if (first comboboxgettext "cNewWord) = item repcount :hydwords [ ;if the user's input (taken outside of brackets) is the same as item 1,2,etc.
+;of :hydwords then do this
+		staticupdate (word "s  repcount) (sentence(word repcount  ".) :currentw) ;update the static created in hydrant to ie. 1. Hydrant
+	]
+]
+end
+
+to frozen ;this program was originally intended to have multiple words that the user could choose to unscramble, however I didn't get around to it
+end
+
+to hydrant
+scramble ;runs scramble
+
+make "hydwords [Hydrant Handy Hardy Hydra Tardy Arty Dart Hand Hard Rant Rath Than Tray
+Yard Yarn And Ant Any Art Day Dry Had Hat Hay Ran Rat Ray Tad Tan Tar Try] ;puts all of the potential unscrambled words in to a variable called "hydwords
+
+repeat 31 [ ;repeats for each word/item in :hydwords
+	make "nwcount count(item repcount :hydwords) ;makes a variable called "nwcount that stores the number of letters in each item/word in :hydwords
+	make "dash " ;creates a variable called "dash that will hold the number of dashes in each word of :hydwords
+	repeat :nwcount [
+		make "dash (word :dash  "_)
+	] ;adds a "_ to "dash in place of each letter of each item/word of :hydwords
+
+;the ifelse checks below create the variables/coordinates for each new static stored in the variables "x and "y
+	ifelse repcount < 9 [ ;when the repcount is 1 to 8 make "x (horizontal) 55 and "y (vertical) increase like this: 5, 22, 39, 56, etc. 
+		make "x 55
+		make "y (5 + (repcount - 1) * 17)
+	][
+		ifelse repcount < 17 [ ;when the repcount is 8 to 16 make "x 110 and "y increase like this: 5, 22, 39, 56, etc.
+			make "x 110
+			make "y (5 + (repcount - 9) * 17)
+		][
+			ifelse repcount < 25 [ ;when the repcount is 16 to 24 make "x 165 and "y increase like this: 5, 22, 39, 56, etc.
+				make "x 165
+				make "y (5 + (repcount - 17) * 17)
+			][ ;when the repcount is 24 to 31 (or higher) make "x 220 and "y increase like this: 5, 22, 39, 56, etc.
+				make "x 220
+				make "y (5 + (repcount - 25) * 17)
+			]
+		]
+	] ;after the variables for the x and y position are set, do this
+	staticcreate "w1 (word "s repcount) (sentence (word repcount ".) :dash) :x :y 50 12 ;creates a static in the main window for each item/word in
+;"hydwords, which is replaced by dashes; ie. staticcreate "w1 "s1 [1. _______] 55 5 50 12
+]
+end
+
+to scramble
+make "regw "hydrant ;sets the word that scramble should scramble, which as of yet, is only "hydrant
+make "count count :regw ;creates a variable called "count which holds the number of letters in the word being used: "hydrant
+make "scrw " ;creates an empty variable called "scrw
+repeat :count [ ;repeats for each letter
+	make "letter pick :regw ;creates a variable called letter that holds a random letter from :regw/"hydrant
+	make "regw remove :letter :regw ;removes this random letter from :regw
+	make "scrw (word :scrw  :letter) ;adds this random letter to the once empty variable "scrw
+]
+staticupdate "sWord :scrw ;updates the static with the selected word
+end
+
+to selectword
+make "word pick [hydrant] ;creates a variable "word, which chooses either "hydrant, or "frozen. For now the only option is hydrant
+ifelse :word = "hydrant [hydrant][frozen] ;if :word = hydrant, run hydrant, otherwise, run frozen
+end
+
+to solution
+	repeat 31 [ ;repeats for the number of items/words in hydrant
+	make "currentw item repcount :hydwords ;makes a variable to keep the current item/word
+		staticupdate (word "s  repcount) (sentence(word repcount  ".) :currentw) ;ie. staticupdate "s1 [1. Hydrant]
+	]
+end
+
+to WordSearch
+windowcreate "main "w1 [Word Search] 150 120 300 200 [] ;creates the main window
+buttoncreate "w1 "bQuit [Quit] 5 166 45 15 [windowdelete "w1] ;creates a quit button
+buttoncreate "w1 "bSelect [Select Word] 5 5 45 15 [selectword] ;creates a button that runs selectword selects a word to unscramble
+buttoncreate "w1 "bScramble [Scramble] 5 25 45 15 [scramble] ;creates a button that runs scramble and allows the user to scramble the word again
+buttoncreate "w1 "bSolution [Solution] 5 45 45 15 [solution] ;creates a button that runs solution and gives the user all of the answers/unscrambled words
+
+staticcreate "w1 "sWord [_________] 120 155 40 15 ;creates a static where the word that was selected will be given
+buttoncreate "w1 "bCheck [Check] 175 142 45 15 [check] ;creates a button, which runs check and checks the user's input
+comboboxcreate "w1 "cNewWord 170 162 55 15 ;creates a combobox for the user to guess an unscrambled word
+end
